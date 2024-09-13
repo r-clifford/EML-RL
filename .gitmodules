@@ -1,0 +1,14 @@
+[submodule "f1tenth_gym"]
+	path = f1tenth_gym
+	url = https://github.com/r-clifford/f1tenth_gym.git
+	branch = v1.0.0
+[submodule "f1tenth_planning"]
+	path = f1tenth_planning
+	url = https://github.com/r-clifford/f1tenth_planning.git
+	branch = v1.0.0
+[submodule "stable-baselines3"]
+	path = stable-baselines3
+	url = https://github.com/r-clifford/stable-baselines3.git
+[submodule "rl-baselines3-zoo"]
+	path = rl-baselines3-zoo
+	url = https://github.com/r-clifford/rl-baselines3-zoo.git
