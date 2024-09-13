@@ -12,3 +12,6 @@
 [submodule "rl-baselines3-zoo"]
 	path = rl-baselines3-zoo
 	url = https://github.com/r-clifford/rl-baselines3-zoo.git
+[submodule "sbx"]
+	path = sbx
+	url = https://github.com/araffin/sbx.git

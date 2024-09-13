@@ -4,11 +4,7 @@ from gymnasium.wrappers import FrameStack
 from stable_baselines3.common.env_util import make_vec_env
 from stable_baselines3.common.utils import set_random_seed
 from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv
-from stable_baselines3.common.callbacks import (
-    CallbackList,
-    CheckpointCallback,
-    EvalCallback,
-)
+from stable_baselines3.common.callbacks import CallbackList, CheckpointCallback, EvalCallback
 from Reward import RewardFunction
 from f1tenth_transforms import *
 
@@ -20,9 +16,8 @@ from f1tenth_transforms import *
 # Example: Implement follow the gap, wall follow, or disparity
 # through writing reward functions
 # Consider punishing changing sign of steering angle
-#
+# 
 # Organize trained models in directory
-
 
 def make_env(env_id: str, rank: int, seed: int = 0):
     """
@@ -41,7 +36,7 @@ def make_env(env_id: str, rank: int, seed: int = 0):
             config={
                 "reset_config": {"type": "rl_random_static"},
                 "reward_function": RewardFunction,
-                "map": "Catalunya",
+                "map": "Spielberg",
                 "num_agents": 1,
                 "timestep": 0.03,
                 "model": "st",
@@ -105,12 +100,11 @@ if __name__ == "__main__":
     # )
 
     env = make_env("train", 0, 0)()
-    # env = SubprocVecEnv([make_env("f1tenth_gym:f1tenth-v0", i) for i in range(2)])
 
-    checkpoint_callback = CheckpointCallback(save_freq=50000, save_path="./logs/")
+    checkpoint_callback = CheckpointCallback(
+        save_freq=50000, save_path="./logs/")
     # Separate evaluation env
     eval_env = make_env("eval", 1, 1)()
-    # eval_env = SubprocVecEnv([make_env("eval", 10+i) for i in range(2)])
     eval_callback = EvalCallback(
         eval_env,
         best_model_save_path="./logs/best_model",
@@ -118,15 +112,13 @@ if __name__ == "__main__":
         eval_freq=25000,
     )
     # Create the callback list
-    callback = CallbackList(
-        [
-            checkpoint_callback,
-            # eval_callback
-        ]
-    )
+    callback = CallbackList([
+        checkpoint_callback,
+        # eval_callback
+    ])
     # low = np.array([[-0.4189, 0.0]]).astype(np.float32)
     # high = np.array([[0.4189, 10.0]]).astype(np.float32)
-    from stable_baselines3 import TD3, SAC, PPO
+    from sbx import TD3, SAC, PPO
     from stable_baselines3.common.noise import (
         NormalActionNoise,
         OrnsteinUhlenbeckActionNoise,
@@ -140,17 +132,11 @@ if __name__ == "__main__":
     policy_kwargs = dict(net_arch=[1600, 1200])
     # model = SAC("MlpPolicy", env, verbose=1, tensorboard_log="logs", policy_kwargs=policy_kwargs)
     model = TD3(
-        "MlpPolicy",
-        env,
-        verbose=1,
-        tensorboard_log="logs",
-        policy_kwargs=policy_kwargs,
-        action_noise=action_noise,
+        "MlpPolicy", env, verbose=1, tensorboard_log="logs", policy_kwargs=policy_kwargs
     )
     try:
-        model.learn(
-            total_timesteps=int(10 * 6 * 1e5), progress_bar=True, callback=callback
-        )
+        model.learn(total_timesteps=int(6 * 1e5),
+                    progress_bar=True, callback=callback)
     finally:
         model.save("td3_f1tenth")
     #
@@ -159,15 +145,15 @@ if __name__ == "__main__":
     #
     i = 0.0
     obs = vec_env.reset()
-    # while True:
-    #     try:
-    #         action, _states = model.predict(obs)
-    #         # print(action)
-    #         obs, rewards, dones, info = vec_env.step(action)
-    #         vec_env.render("human")
-    #         i += 0.01
-    #         if i > 60:
-    #             i = 0.0
-    #             env.reset()
-    #     except KeyboardInterrupt:
-    #         break
+    while True:
+        try:
+            action, _states = model.predict(obs)
+            # print(action)
+            obs, rewards, dones, info = vec_env.step(action)
+            vec_env.render("human")
+            i += 0.01
+            if i > 60:
+                i = 0.0
+                env.reset()
+        except KeyboardInterrupt:
+            break
