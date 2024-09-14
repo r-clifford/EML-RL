@@ -39,22 +39,3 @@ class F1TenthObsTransform(gym.ObservationWrapper):
         # print(state)
         # print(f"arr: {np.array(scan)}")
         return scan
-# class F1TenthObsTransform(gym.ObservationWrapper):
-#     def __init__(self, env):
-#         super(F1TenthObsTransform, self).__init__(env)
-#         self.last = np.zeros((20, ))
-#         self.observation_space = gym.spaces.Box(low=0.0, high=30.0, shape=(44, ))
-#     def observation(self, observation):
-#         scan: gym.spaces.Box = observation["agent_0"]["scan"]
-#         # scan = np.reshape(scan,(20, 1080//20))
-#         # scan = np.mean(scan, axis=1)
-#         # scan = np.ndarray.flatten(scan)
-#         indices = np.linspace(0, 1079, 20, dtype=int)
-#         scan = scan[indices]
-#         tmp = scan
-#         scan = np.concatenate((self.last,scan))
-#         self.last = tmp
-#         state = np.array([observation["agent_0"]["linear_vel_x"], observation["agent_0"]["ang_vel_z"],0,0])
-#         state = np.concatenate((state, scan))
-#         # print(f"arr: {np.array(scan)}")
-#         return state

@@ -81,6 +81,7 @@ if __name__ == "__main__":
             action, _states = model.predict(obs)
             print(action)
             obs, rewards, dones, info = vec_env.step(action)
+
             vec_env.render("human")
             i += 0.01
             if i > 60:
