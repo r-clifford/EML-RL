@@ -2,23 +2,23 @@
 LOG_BASE=$1
 ALGO=$2
 CONFIG=$3
+echo "LOG_BASE: $LOG_BASE"
+echo "ALGO: $ALGO"
 LOG_DIR="$LOG_BASE$ALGO-$(date '+%s')"
-OPT_DIR="$LOG_BASE$ALGO-$(date '+%s')"/opt
-
+echo "LOG_DIR: $LOG_DIR"
+tensorboard --logdir "$LOG_DIR" &
+TB_PID=$!
 mkdir -p "$LOG_DIR"
 cp eml_rl/reward.py "$LOG_DIR"
 python rl-baselines3-zoo/train.py --algo "$ALGO" --env f1tenth-v0 --n-jobs 1 \
-  -n 50000 \
-  --eval-freq 5000 \
-  --sampler tpe --pruner median \
+  -n 1000000 \
+  --eval-freq 25000 \
   --conf-file "$CONFIG" --progress \
   -tb "$LOG_DIR" \
   -f "$LOG_DIR" \
-  --optimization-log-path "$OPT_DIR" \
-  -optimize --n-trials 500 \
   --save-freq 25000 \
-  --n-evaluations 10 \
   --eval-episodes 20 \
   --seed 2024 \
-  --uuid \
-  --verbose
+  --uuid
+
+kill $TB_PID

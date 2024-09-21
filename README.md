@@ -24,6 +24,8 @@
 6. Install dependencies
    ```
    sudo apt update
+   # This may fail on certain distro versions
+   # Try to continue with out it
    sudo apt install libgl1-mesa-glx
    ```
 6. Install local packages
@@ -32,19 +34,42 @@
      pip install -e f1tenth_planning
      pip install -e stable_baselines3
      pip install -e rl-baselines3-zoo
+     pip install -e sb3-contrib
      pip install -e .
-     ```
+     pip install -r requirements.txt
+    ```
 # Train
+https://stable-baselines3.readthedocs.io/en/master/guide/quickstart.html
 ```
-python3 eml_rl/train.py
+python3 eml_rl/train.py <algorithm>
 ```
-
+## Train with rl-baselines3-zoo
+https://rl-baselines3-zoo.readthedocs.io/en/master/guide/quickstart.html
+```
+./eml_rl/train.sh <log_dir> <algorithm>
+```
 # Evaluate
 ```
-python3 eml_rl/eval.py <path to model zip>
+python3 eml_rl/eval.py <algorithm> <path to model zip>
 ```
 
 # Hyperparameter Tuning
+https://rl-baselines3-zoo.readthedocs.io/en/master/guide/tuning.html
 ```
-./eml_rl/opt.sh
+./eml_rl/opt.sh <log_dir> <algorithm>
 ```
+
+# Notes
+- Pull latest changes with `git pull --recurse-submodules`
+- Remember to source the virtual environment with `source rl_venv/bin/activate`
+- Current valid algorithms
+  - ppo
+  - sac
+  - td3
+  - tqc
+  - rppo is not currently working
+  > td3, sac, and tqc have had the best results
+- The reward function is defined in `eml_rl/reward.py` and subclasses the `Reward` class defined by `f1tenth_gym`
+- Action and observation space transforms are defined in `eml_rl/f1tenth_transforms.py`
+- A function to make the environment is defined in `eml_rl/utils.py`
+- Domain randomization support is also in `eml_rl/utils.py`

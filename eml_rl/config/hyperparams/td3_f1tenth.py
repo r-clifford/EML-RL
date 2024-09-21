@@ -1,68 +1,37 @@
-"""This file just serves as an example on how to configure the zoo
-using python scripts instead of yaml files."""
+from eml_rl.utils import basic_config
 
-from eml_rl.Reward import ProgressReward
-from eml_rl.f1tenth_transforms import F1TenthActionTransform, F1TenthObsTransform
+policy_kwargs = dict(net_arch=[1600, 1200])
 
+
+train_conf = basic_config()
+eval_conf = basic_config()
+eval_conf["reset_config"] = {"type": "cl_grid_static"}
 hyperparams = {
     "f1tenth-v0": dict(
         env_wrapper=[
-            "eml_rl.f1tenth_transforms.F1TenthObsTransform",
-            "eml_rl.f1tenth_transforms.F1TenthActionTransform",
-            {"gymnasium.wrappers.FrameStack": {"num_stack": 5}},
+            {
+                "eml_rl.f1tenth_transforms.F1TenthObsTransform": {
+                    "beam_count": train_conf["lidar_beams"],
+                }
+            },
+            {
+                "eml_rl.f1tenth_transforms.F1TenthActionTransform": {
+                    "vmax": train_conf["vmax"],
+                    "vmin": train_conf["vmin"],
+                }
+            },
+            {"gymnasium.wrappers.FrameStack": {
+                "num_stack": train_conf["frame_stack"]}},
         ],
+        callback=["eml_rl.f1tenth_transforms.F1TenthTensorboardCallback"],
         # normalize=False,
         # n_envs=1,
-        n_timesteps=200000.0,
+        n_timesteps=25000.0,
         policy="MlpPolicy",
-        env_kwargs={
-            "config": {
-                "reset_config": {"type": "rl_random_static"},
-                "reward_function": ProgressReward(),
-                "map": "Catalunya",
-                "num_agents": 1,
-                "timestep": 0.03,
-                "model": "st",
-                "control_input": ["speed", "steering_angle"],
-                "observation_config": {
-                    "type": "features",
-                    "features": [
-                        "pose_x",
-                        "pose_y",
-                        "scan",
-                        "pose_theta",
-                        "linear_vel_x",
-                        "ang_vel_z",
-                        "collision",
-                        "lap_time",
-                        "lap_count",
-                    ],
-                },
-            },
-        },
+        policy_kwargs=policy_kwargs,
+        env_kwargs={"config": train_conf["config"]},
         eval_env_kwargs={
-            "config": {
-                "reward_function": ProgressReward(),
-                "map": "Catalunya",
-                "num_agents": 1,
-                "timestep": 0.01,
-                "model": "st",
-                "control_input": ["speed", "steering_angle"],
-                "observation_config": {
-                    "type": "features",
-                    "features": [
-                        "pose_x",
-                        "pose_y",
-                        "scan",
-                        "pose_theta",
-                        "linear_vel_x",
-                        "ang_vel_z",
-                        "collision",
-                        "lap_time",
-                        "lap_count",
-                    ],
-                },
-            },
+            "config": eval_conf["config"],
         },
     )
 }

@@ -1,9 +1,5 @@
 from eml_rl.utils import basic_config
 
-policy_kwargs = dict(net_arch=[1600, 1200])
-use_sde = True
-
-
 train_conf = basic_config()
 eval_conf = basic_config()
 eval_conf["reset_config"] = {"type": "cl_grid_static"}
@@ -29,8 +25,6 @@ hyperparams = {
         # n_envs=1,
         n_timesteps=25000.0,
         policy="MlpPolicy",
-        policy_kwargs=policy_kwargs,
-        use_sde=use_sde,
         env_kwargs={"config": train_conf["config"]},
         eval_env_kwargs={
             "config": eval_conf["config"],

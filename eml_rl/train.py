@@ -1,131 +1,50 @@
-import gymnasium as gym
+import sys
+import stable_baselines3
+import sb3_contrib
 import numpy as np
-from gymnasium.wrappers import FrameStack
-from stable_baselines3.common.env_util import make_vec_env
-from stable_baselines3.common.utils import set_random_seed
-from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv
+from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3.common.callbacks import (
     CallbackList,
     CheckpointCallback,
     EvalCallback,
 )
-from Reward import ProgressReward
-from f1tenth_transforms import *
+from stable_baselines3.common.monitor import Monitor
+from utils import make_env
 
 SEED = 101
-# TODO: Implement Rewarder base class
-# Decouple reward function from the environment
-# Init rewarder with env params
-# Only pass observation to reward function
-# Example: Implement follow the gap, wall follow, or disparity
-# through writing reward functions
-# Consider punishing changing sign of steering angle
-#
-# Organize trained models in directory
-
-
-def make_env(env_id: str, rank: int, seed: int = 0):
-    """
-    Utility function for multiprocessed env.
-
-    :param env_id: the environment ID
-    :param num_env: the number of environments you wish to have in subprocesses
-    :param seed: the initial seed for RNG
-    :param rank: index of the subprocess
-    """
-
-    def _init():
-        # env = gym.make(env_id, render_mode="human")
-        env = gym.make(
-            "f1tenth_gym:f1tenth-v0",
-            config={
-                "reset_config": {"type": "rl_random_static"},
-                "reward_class": ProgressReward(),
-                "map": "Catalunya",
-                "num_agents": 1,
-                "timestep": 0.03,
-                "model": "st",
-                "control_input": ["speed", "steering_angle"],
-                "observation_config": {
-                    "type": "features",
-                    "features": [
-                        "pose_x",
-                        "pose_y",
-                        "scan",
-                        "pose_theta",
-                        "linear_vel_x",
-                        "ang_vel_z",
-                        "collision",
-                        "lap_time",
-                        "lap_count",
-                    ],
-                },
-            },
-            render_mode="rgb_array",
-        )
-
-        env = F1TenthObsTransform(env)
-        env = FrameStack(env, 5)
-        env = F1TenthActionTransform(env)
-        env.reset(seed=seed + rank)
-        return env
-
-    set_random_seed(seed)
-    return _init
-
 
 if __name__ == "__main__":
-    # env = SubprocVecEnv([make_env("f1tenth_gym:f1tenth-v0", i) for i in range(1)])
-    # env = gym.make(
-    #     "f1tenth_gym:f1tenth-v0",
-    #     config={
-    #         "reset_config": {"type": "rl_random_static"},
-    #         "reward_function": RewardFunction,
-    #         "map": "Spielberg",
-    #         "num_agents": 1,
-    #         "timestep": 0.03,
-    #         "model": "st",
-    #         "control_input": ["speed", "steering_angle"],
-    #         "observation_config": {
-    #             "type": "features",
-    #             "features": [
-    #                 "pose_x",
-    #                 "pose_y",
-    #                 "scan",
-    #                 "pose_theta",
-    #                 "linear_vel_x",
-    #                 "ang_vel_z",
-    #                 "collision",
-    #                 "lap_time",
-    #                 "lap_count",
-    #             ],
-    #         },
-    #     },
-    #     render_mode="rgb_array",
-    # )
-
+    if len(sys.argv) < 2:
+        print("Usage: python train.py <algo>")
+        exit(1)
+    algo = sys.argv[1]
     env = make_env("train", 0, SEED)()
-    # env = DummyVecEnv([make_env("f1tenth_gym:f1tenth-v0", i) for i in range(2)])
+    # env = DummyVecEnv([make_env("f1tenth_gym:f1tenth-v0", i, np.random.randint(0,1000)) for i in range(2)])
+    env = Monitor(env, info_keywords=("progress", "laptimes"))
 
-    checkpoint_callback = CheckpointCallback(save_freq=50000, save_path="./logs/")
+    checkpoint_callback = CheckpointCallback(save_freq=50000, save_path=f"./logs/{algo}")
     # Separate evaluation env
-    # eval_env = make_env("eval", 1, 1)()
-    # eval_env = SubprocVecEnv([make_env("eval", 10+i) for i in range(2)])
-    # eval_callback = EvalCallback(
-    #     eval_env,
-    #     best_model_save_path="./logs/best_model",
-    #     log_path="./logs/results",
-    #     eval_freq=25000,
-    # )
+    eval_env = make_env("eval", 1, 1)()
+    eval_env = Monitor(
+        eval_env, info_keywords=("progress", "laptimes"), filename="out.log"
+    )
+    eval_callback = EvalCallback(
+        eval_env,
+        best_model_save_path=f"./logs/{algo}/best_model",
+        log_path=f"./logs/{algo}/results",
+        eval_freq=25000,
+        deterministic=True,
+        render=False,
+        verbose=1,
+        n_eval_episodes=10,
+    )
     # Create the callback list
     callback = CallbackList(
         [
             checkpoint_callback,
-            # eval_callback
+            eval_callback,
         ]
     )
-    # low = np.array([[-0.4189, 0.0]]).astype(np.float32)
-    # high = np.array([[0.4189, 10.0]]).astype(np.float32)
     from stable_baselines3 import TD3, SAC, PPO
     from stable_baselines3.common.noise import (
         NormalActionNoise,
@@ -133,31 +52,71 @@ if __name__ == "__main__":
     )
 
     n_actions = env.action_space.shape[-1]
-    # action_noise = NormalActionNoise(
-    #     mean=np.zeros(n_actions), sigma=0.05 * np.ones(n_actions)
-    # )
-    # policy_kwargs = dict(net_arch=[512, 512])
-    policy_kwargs = dict(net_arch=[1600, 1200])
-    # model = SAC("MlpPolicy", env, verbose=1, tensorboard_log="logs", policy_kwargs=policy_kwargs)
-    model = TD3(
-        "MlpPolicy",
-        env,
-        verbose=1,
-        tensorboard_log="logs",
-        policy_kwargs=policy_kwargs,
-        # action_noise=action_noise,
+    action_noise = NormalActionNoise(
+        mean=np.zeros(n_actions), sigma=0.01 * np.ones(n_actions)
     )
-    try:
-        model.learn(
-            total_timesteps=int(10 * 6 * 1e4), progress_bar=True, 
-            callback=callback
+    policy_kwargs = dict(net_arch=[1600, 1200])
+
+    if algo == "sac":
+        model = SAC(
+            "MlpPolicy",
+            env,
+            verbose=1,
+            tensorboard_log="logs/sac",
+            policy_kwargs=policy_kwargs,
+            # train_freq=16,
+            use_sde=True,
         )
+    elif algo == "td3":
+        model = TD3(
+            "MlpPolicy",
+            env,
+            verbose=1,
+            tensorboard_log="logs/td3",
+            policy_kwargs=policy_kwargs,
+            # batch_size=64,
+            # buffer_size=1000000,
+            # gamma=0.98,
+            # learning_rate=1.8729356621045733e-05,
+            # tau=0.05,
+            # train_freq=16,
+            # action_noise=action_noise,
+        )
+    elif algo == "rppo":
+        model = sb3_contrib.RecurrentPPO(
+            "MlpLstmPolicy",
+            env,
+            verbose=1,
+            policy_kwargs=policy_kwargs,
+            tensorboard_log="logs/rppo",
+            use_sde=True,
+        )
+    elif algo == "ppo":
+        model = PPO(
+            "MlpPolicy",
+            env,
+            verbose=1,
+            policy_kwargs=policy_kwargs,
+            tensorboard_log="logs/ppo",
+            use_sde=True,
+        )
+    elif algo == "tqc":
+        model = sb3_contrib.TQC(
+            "MlpPolicy",
+            env,
+            verbose=1,
+            policy_kwargs=policy_kwargs,
+            tensorboard_log="logs/tqc",
+            use_sde=True,
+        )
+    else:
+        print("Usage: python train.py <algo>")
+        exit(1)
+    try:
+        model.learn(total_timesteps=int(1e6), progress_bar=True, callback=callback)
     finally:
-        model.save("td3_f1tenth")
-    #
-    # model = SAC.load("/".join(__file__.split("/")[:-1]) + "/best_model.zip", env)
+        model.save(f"{algo}_f1tenth")
     vec_env = model.get_env()
-    #
     i = 0.0
     obs = vec_env.reset()
     while True:

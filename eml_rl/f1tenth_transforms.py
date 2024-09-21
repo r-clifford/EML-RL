@@ -1,41 +1,79 @@
 import gymnasium as gym
 import numpy as np
+from stable_baselines3.common.callbacks import BaseCallback
+
 
 class F1TenthActionTransform(gym.ActionWrapper):
-    def __init__(self, env):
+    def __init__(self, env, vmin=1.0, vmax=8.0, steermax=0.4189):
         super().__init__(env)
-        low = np.array([[-0.4189, 1.0]]).astype(np.float32)
-        high = np.array([[0.4189, 8.0]]).astype(np.float32)
-        env.action_space = gym.spaces.Box(low=low, high=high, shape=(1,2), dtype=np.float32)
+        self.vmax = vmax
+        self.vmin = vmin
+        self.steermax = steermax
+        low = np.array([[-1.0, 0.0]]).astype(np.float32)
+        high = np.array([[1.0, 1.0]]).astype(np.float32)
+        env.action_space = gym.spaces.Box(
+            low=low, high=high, shape=(1, 2), dtype=np.float32
+        )
 
     def action(self, action):
-        # print("1")
-        # return np.array([])
+        action[0][0] *= self.steermax
+        action[0][1] *= self.vmax - self.vmin
+        action[0][1] += self.vmin
         return action
-    
+
+
 class F1TenthObsTransform(gym.ObservationWrapper):
-    def __init__(self, env):
+    def __init__(self, env, beam_count=40):
         super(F1TenthObsTransform, self).__init__(env)
-        self.last = np.zeros((40, ))
-        # self.observation_space = gym.spaces.Box(low=0.0, high=1.0, shape=(80, ))
-        self.observation_space = gym.spaces.Box(low=0.0, high=1.0, shape=(40, ))
+        self.beam_count = beam_count
+        self.last = np.zeros((self.beam_count,))
+        self.observation_space = gym.spaces.Box(
+            low=0.0, high=1.0, shape=(self.beam_count,)
+        )
         self.scale = 30
-        # print("OBS: ", self.observation_space.shape)
 
     def observation(self, observation):
         scan: gym.spaces.Box = observation["agent_0"]["scan"]
-        # scan = np.reshape(scan,(20, 1080//20))
-        # scan = np.mean(scan, axis=1)
-        # scan = np.ndarray.flatten(scan)
-        scan = scan/self.scale
+        scan = scan / self.scale
         scan = np.clip(scan, 0, 1)
-        indices = np.linspace(0, 1079, 40, dtype=int)
+        indices = np.linspace(0, 1079, self.beam_count, dtype=int)
         scan = scan[indices]
-        # tmp = scan
-        # scan = np.concatenate((self.last,scan))
-        # self.last = tmp
-        # state = np.array([observation["agent_0"]["linear_vel_x"], observation["agent_0"]["ang_vel_z"],0,0])
-        # state = np.concatenate((state, scan))
-        # print(state)
-        # print(f"arr: {np.array(scan)}")
         return scan
+
+
+class F1TenthTensorboardCallback(BaseCallback):
+    """
+    Custom callback for plotting additional values in tensorboard.
+    TODO: Not working currently
+    """
+
+    def __init__(self, verbose=0):
+        super().__init__(verbose)
+        self.steps = 0
+        self.laptimes = dict()
+        self.progress = dict()
+
+    def _on_step(self) -> bool:
+        for i, env in enumerate(self.locals["env"].envs):
+            progs = env.env.unwrapped.agent_progress
+            times = env.env.unwrapped.lap_times
+            time = self.laptimes.get(i, np.zeros_like(times))
+            self.laptimes[i] = time + times
+            prog = self.progress.get(i, np.zeros_like(times))
+            self.progress[i] = prog + progs
+
+        self.steps += 1
+        return True
+
+    def _on_rollout_end(self) -> None:
+        for j, env_times in self.laptimes.items():
+            for i, _ in enumerate(env_times):
+                self.logger.record(
+                    f"rollout/progress_{j}_{i}", self.progress[j][i] / self.steps
+                )
+                self.logger.record(
+                    f"rollout/laptimes_{j}_{i}", self.laptimes[j][i] / self.steps
+                )
+        self.steps = 0
+        self.laptimes = dict()
+        self.progress = dict()

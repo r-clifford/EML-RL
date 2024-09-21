@@ -15,3 +15,6 @@
 [submodule "sbx"]
 	path = sbx
 	url = https://github.com/araffin/sbx.git
+[submodule "stable-baselines3-contrib"]
+	path = stable-baselines3-contrib
+	url = https://github.com/r-clifford/stable-baselines3-contrib.git
