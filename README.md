@@ -46,8 +46,12 @@ python3 eml_rl/train.py <algorithm>
 ## Train with rl-baselines3-zoo
 https://rl-baselines3-zoo.readthedocs.io/en/master/guide/quickstart.html
 ```
-./eml_rl/train.sh <log_dir> <algorithm>
+./eml_rl/train.sh <log_dir> <algorithm> <config_file>
 ```
+- `log_dir`: directory for log storage
+- `algorithm`: RL algorithm to use, see notes
+- `config_file`: Config file with environment parameters and model hyperparams
+   - See `eml_rl/config/hyperparams/<algo>_f1tenth.py`
 # Evaluate
 ```
 python3 eml_rl/eval.py <algorithm> <path to model zip>
@@ -58,7 +62,7 @@ https://rl-baselines3-zoo.readthedocs.io/en/master/guide/tuning.html
 ```
 ./eml_rl/opt.sh <log_dir> <algorithm>
 ```
-
+- See section on training with rl-baselines3-zoo
 # Notes
 - Pull latest changes with `git pull --recurse-submodules`
 - Remember to source the virtual environment with `source rl_venv/bin/activate`
