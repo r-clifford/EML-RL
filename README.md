@@ -32,9 +32,9 @@
      ```
      pip install -e f1tenth_gym
      pip install -e f1tenth_planning
-     pip install -e stable_baselines3
+     pip install -e stable-baselines3
      pip install -e rl-baselines3-zoo
-     pip install -e sb3-contrib
+     pip install -e stable-baselines3-contrib
      pip install -e .
      pip install -r requirements.txt
     ```
