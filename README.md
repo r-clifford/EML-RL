@@ -63,6 +63,10 @@ https://rl-baselines3-zoo.readthedocs.io/en/master/guide/tuning.html
 ./eml_rl/opt.sh <log_dir> <algorithm>
 ```
 - See section on training with rl-baselines3-zoo
+- View optimization results
+  ```
+  optuna-dashboard sqlite:///studies.db
+  ```
 # Notes
 - Pull latest changes with `git pull --recurse-submodules`
 - Remember to source the virtual environment with `source rl_venv/bin/activate`
@@ -72,6 +76,7 @@ https://rl-baselines3-zoo.readthedocs.io/en/master/guide/tuning.html
   - td3
   - tqc
   - rppo is not currently working
+  - crossq
   > td3, sac, and tqc have had the best results
 - The reward function is defined in `eml_rl/reward.py` and subclasses the `Reward` class defined by `f1tenth_gym`
 - Action and observation space transforms are defined in `eml_rl/f1tenth_transforms.py`
