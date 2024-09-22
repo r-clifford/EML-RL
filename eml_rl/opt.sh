@@ -2,8 +2,9 @@
 LOG_BASE=$1
 ALGO=$2
 CONFIG=$3
-LOG_DIR="$LOG_BASE$ALGO-$(date '+%s')"
-OPT_DIR="$LOG_BASE$ALGO-$(date '+%s')"/opt
+STUDY_NAME="$ALGO-$(date '+%s')"
+LOG_DIR="$LOG_BASE$STUDY_NAME"
+OPT_DIR="$LOG_BASE$STUDY_NAME"/opt
 
 mkdir -p "$LOG_DIR"
 cp eml_rl/reward.py "$LOG_DIR"
@@ -20,4 +21,6 @@ python rl-baselines3-zoo/train.py --algo "$ALGO" --env f1tenth-v0 --n-jobs 1 \
   --n-evaluations 10 \
   --eval-episodes 20 \
   --seed 2024 \
+  --storage "sqlite:///studies.db" \
+  --study-name "$STUDY_NAME" \
   --uuid

@@ -1,3 +1,6 @@
 tensorboard
 tqdm
 rich
+seaborn
+optuna-dashboard
+plotly
