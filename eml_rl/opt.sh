@@ -20,5 +20,4 @@ python rl-baselines3-zoo/train.py --algo "$ALGO" --env f1tenth-v0 --n-jobs 1 \
   --n-evaluations 10 \
   --eval-episodes 20 \
   --seed 2024 \
-  --uuid \
-  --verbose
+  --uuid
