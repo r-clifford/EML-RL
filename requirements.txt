@@ -4,3 +4,5 @@ rich
 seaborn
 optuna-dashboard
 plotly
+optuna-fast-fanova
+gunicorn

@@ -1,37 +1,17 @@
-from eml_rl.utils import basic_config
+from eml_rl.config.f1tenth_config import get_default_hyperparams
 
-policy_kwargs = dict(net_arch=[1600, 1200])
+policy_kwargs = dict(net_arch=[1600, 1200, 800])
 
 
-train_conf = basic_config()
-eval_conf = basic_config()
-eval_conf["reset_config"] = {"type": "cl_grid_static"}
-hyperparams = {
-    "f1tenth-v0": dict(
-        env_wrapper=[
-            {
-                "eml_rl.f1tenth_transforms.F1TenthObsTransform": {
-                    "beam_count": train_conf["lidar_beams"],
-                }
-            },
-            {
-                "eml_rl.f1tenth_transforms.F1TenthActionTransform": {
-                    "vmax": train_conf["vmax"],
-                    "vmin": train_conf["vmin"],
-                }
-            },
-            {"gymnasium.wrappers.FrameStack": {
-                "num_stack": train_conf["frame_stack"]}},
-        ],
-        callback=["eml_rl.f1tenth_transforms.F1TenthTensorboardCallback"],
-        # normalize=False,
-        # n_envs=1,
-        n_timesteps=25000.0,
-        policy="MlpPolicy",
-        policy_kwargs=policy_kwargs,
-        env_kwargs={"config": train_conf["config"]},
-        eval_env_kwargs={
-            "config": eval_conf["config"],
-        },
-    )
-}
+params = dict(
+#     gamma=0.999,
+    learning_rate=0.000014637059120891274,
+#     batch_size=128,
+#     buffer_size=1000000,
+#     learning_starts=0,
+    train_freq=2,
+    policy_kwargs=policy_kwargs,
+)
+hyperparams = get_default_hyperparams()
+
+hyperparams["f1tenth-v0"].update(params)

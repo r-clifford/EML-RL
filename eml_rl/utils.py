@@ -2,7 +2,11 @@ import gymnasium as gym
 import numpy as np
 
 
-from eml_rl.f1tenth_transforms import F1TenthObsTransform, F1TenthActionTransform
+from eml_rl.f1tenth_transforms import (
+    F1TenthObsTransform,
+    F1TenthActionTransform,
+    FrameSkip,
+)
 from eml_rl.reward import ProgressReward
 from gymnasium.wrappers import FrameStack
 from stable_baselines3.common.utils import set_random_seed
@@ -12,12 +16,12 @@ def basic_config():
     conf = {
         "config": {
             "params_randomizer": randomize_sim_params(0.1),
-            "params": {"mu": 0.8},
+            "params": {"mu": 0.3},
             "reset_config": {"type": "shuf_random_static"},
             "reward_class": ProgressReward(),
-            "map": "Catalunya",
+            "map": "Oschersleben",
             "num_agents": 1,
-            "timestep": 0.03,
+            "timestep": 0.01,
             "model": "st",
             "control_input": ["speed", "steering_angle"],
             "observation_config": {
@@ -36,6 +40,7 @@ def basic_config():
             },
         },
         "frame_stack": 10,
+        "frame_skip": 3,
         "lidar_beams": 80,
         "vmax": 8.0,
         "vmin": 1.0,
@@ -86,6 +91,7 @@ def make_env(env_id: str, rank: int, seed: int = 0):
         env = F1TenthObsTransform(env, beam_count=conf["lidar_beams"])
         env = FrameStack(env, conf["frame_stack"])
         env = F1TenthActionTransform(env, vmax=conf["vmax"], vmin=conf["vmin"])
+        env = FrameSkip(env, (2, 4))
         env.reset(seed=seed + rank)
         return env
 

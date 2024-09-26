@@ -6,7 +6,7 @@ if __name__ == "__main__":
     env = make_env("eval", 0, 0)()
 
     from stable_baselines3 import TD3, SAC, PPO
-    from sb3_contrib import TQC, RecurrentPPO
+    from sb3_contrib import TQC, RecurrentPPO, CrossQ
     from stable_baselines3.common.noise import (
         NormalActionNoise,
         OrnsteinUhlenbeckActionNoise,
@@ -27,6 +27,8 @@ if __name__ == "__main__":
         model = TQC.load(sys.argv[2], env)
     elif algo == "rppo":
         model = RecurrentPPO.load(sys.argv[2], env)
+    elif algo == "crossq":
+        model = CrossQ.load(sys.argv[2], env)
     else:
         print("Usage: python eval.py <algo> <model_path>")
         exit(1)
@@ -41,6 +43,7 @@ if __name__ == "__main__":
             if algo in ["rppo"]:
                 action, lstm_state = model.predict(obs, state=lstm_state, mask=episodes_starts)
             action, _ = model.predict(obs)
+            print(action)
             obs, rewards, dones, info = vec_env.step(action)
             episodes_starts = dones
 

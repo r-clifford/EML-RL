@@ -3,6 +3,40 @@ import numpy as np
 from stable_baselines3.common.callbacks import BaseCallback
 
 
+class FrameSkip(gym.Wrapper):
+    def __init__(self, env, skip=2):
+        """FrameSkip constructor
+        Actions are applied every `skip` frames
+        Intermediate frames maintain same action
+
+        Args:
+            env (gym.Env): Env to wrap
+            skip (int | tuple):
+                number of frames to skip (may be range to sample from)
+                [low, high)
+        """
+        super().__init__(env)
+        self.skip = skip
+        self.count = 0
+        self.skip_ = 0
+        self.action = None
+
+    def step(self, action):
+        obs, reward, done, truncated, info = None, 0.0, None, None, None
+        act = np.copy(action)
+        if isinstance(self.skip, tuple):
+            skip = np.random.randint(self.skip[0], self.skip[1])
+        else:
+            skip = self.skip
+        for _ in range(skip + 1):
+            obs, r, done, truncated, info = self.env.step(action)
+            reward += r
+            action = np.copy(act)
+            if done:
+                break
+        return obs, reward / float(skip + 1.0), done, truncated, info
+
+
 class F1TenthActionTransform(gym.ActionWrapper):
     def __init__(self, env, vmin=1.0, vmax=8.0, steermax=0.4189):
         super().__init__(env)
