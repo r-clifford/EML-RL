@@ -1,9 +1,14 @@
 import sys
 import numpy as np
 from eml_rl.utils import make_env
-
+import gymnasium
+import time
+RECORD = False
 if __name__ == "__main__":
     env = make_env("eval", 0, 0)()
+
+    if RECORD:
+        env = gymnasium.wrappers.RecordVideo(env, f"video_{time.time()}")
 
     from stable_baselines3 import TD3, SAC, PPO
     from sb3_contrib import TQC, RecurrentPPO, CrossQ
@@ -43,7 +48,6 @@ if __name__ == "__main__":
             if algo in ["rppo"]:
                 action, lstm_state = model.predict(obs, state=lstm_state, mask=episodes_starts)
             action, _ = model.predict(obs)
-            print(action)
             obs, rewards, dones, info = vec_env.step(action)
             episodes_starts = dones
 
@@ -53,4 +57,5 @@ if __name__ == "__main__":
                 i = 0.0
                 env.reset()
         except KeyboardInterrupt:
+            env.close()
             break

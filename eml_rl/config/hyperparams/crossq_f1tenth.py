@@ -45,22 +45,22 @@ from eml_rl.config.f1tenth_config import get_default_hyperparams
 
 
 policy_kwargs = dict(
-    net_arch=[1600, 1200, 800],
+    net_arch=[1600, 1200, 1000, 800],
     use_expln=False,
-    batch_norm_momentum=0.03218615615174704,
-    batch_norm_eps=0.0001175151013153794,
-    log_std_init=-3.6957093986510907,
+    # batch_norm_momentum=0.03218615615174704,
+    # batch_norm_eps=0.0001175151013153794,
+    # log_std_init=-3.6957093986510907,
 )
 
 use_sde = True
 
 params = dict(
-    #     gamma=0.999,
-    learning_rate=0.000014637059120891274,
-    #     batch_size=128,
-    #     buffer_size=1000000,
-    #     learning_starts=0,
-    train_freq=2,
+    # gamma=0.98,
+    # learning_rate=0.000014637059120891274,
+    # batch_size=256,
+    # buffer_size=1000000,
+    # learning_starts=1000,
+    # train_freq=4,
     policy_kwargs=policy_kwargs,
     use_sde=use_sde,
 )

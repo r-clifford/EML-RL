@@ -11,17 +11,21 @@ from eml_rl.reward import ProgressReward
 from gymnasium.wrappers import FrameStack
 from stable_baselines3.common.utils import set_random_seed
 
+TIME_COEFF = 1.0
+
 
 def basic_config():
     conf = {
         "config": {
+            "max_laps": 2,
             "params_randomizer": randomize_sim_params(0.1),
             "params": {"mu": 0.3},
             "reset_config": {"type": "shuf_random_static"},
-            "reward_class": ProgressReward(),
+            "reward_class": ProgressReward(50, 10),
             "map": "Oschersleben",
+            # "map": "ICRA24_rev",
             "num_agents": 1,
-            "timestep": 0.01,
+            "timestep": 0.01 * TIME_COEFF,
             "model": "st",
             "control_input": ["speed", "steering_angle"],
             "observation_config": {
@@ -39,8 +43,9 @@ def basic_config():
                 ],
             },
         },
-        "frame_stack": 10,
-        "frame_skip": 3,
+        "frame_stack": int(50),
+        # "frame_skip": (int(4 / TIME_COEFF), int(6 / TIME_COEFF)),
+        "frame_skip": int(3/TIME_COEFF),
         "lidar_beams": 80,
         "vmax": 8.0,
         "vmin": 1.0,
@@ -82,6 +87,7 @@ def make_env(env_id: str, rank: int, seed: int = 0):
 
     def _init():
         conf = basic_config()
+        conf["config"]["max_laps"] = 3
         env = gym.make(
             "f1tenth_gym:f1tenth-v0",
             config=conf["config"],
@@ -91,7 +97,7 @@ def make_env(env_id: str, rank: int, seed: int = 0):
         env = F1TenthObsTransform(env, beam_count=conf["lidar_beams"])
         env = FrameStack(env, conf["frame_stack"])
         env = F1TenthActionTransform(env, vmax=conf["vmax"], vmin=conf["vmin"])
-        env = FrameSkip(env, (2, 4))
+        env = FrameSkip(env, conf["frame_skip"])
         env.reset(seed=seed + rank)
         return env
 

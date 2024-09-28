@@ -32,7 +32,6 @@ def get_default_hyperparams():
             ],
             callback=["eml_rl.f1tenth_transforms.F1TenthTensorboardCallback"],
             # normalize=False,
-            # n_envs=1,
             n_timesteps=25000.0,
             policy="MlpPolicy",
             policy_kwargs=None,

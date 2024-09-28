@@ -52,6 +52,11 @@ https://rl-baselines3-zoo.readthedocs.io/en/master/guide/quickstart.html
 - `algorithm`: RL algorithm to use, see notes
 - `config_file`: Config file with environment parameters and model hyperparams
    - See `eml_rl/config/hyperparams/<algo>_f1tenth.py`
+### Continue training
+```
+./eml_rl/train.sh <log_dir> <algorithm> <config_file> <path to model zip>
+```
+> Ensure `net_arch` and action/observation transforms are consistent
 # Evaluate
 ```
 python3 eml_rl/eval.py <algorithm> <path to model zip>

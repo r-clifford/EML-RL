@@ -8,10 +8,10 @@ from f1tenth_gym.envs.reward import Reward
 
 
 class ProgressReward(Reward):
-    def __init__(self):
-        self.buffer_size = 30
+    def __init__(self, buffer_size=30, window_size_rev=3):
+        self.buffer_size = buffer_size
         self.prog_buff = np.zeros(self.buffer_size)
-        self.window_size_rev = 3
+        self.window_size_rev = window_size_rev
 
     def reset(self):
         self.prog_buff = np.zeros(self.buffer_size)
@@ -23,11 +23,11 @@ class ProgressReward(Reward):
             return -1, True
         if progress - self.prog_buff[0] > 0.5:
             return -2, True
-        if progress < self.prog_buff[1 : self.window_size_rev].mean():
-            if self.prog_buff.mean() < 0.97:
-                return -2, True
-            else:
-                return 2, True
+        # if progress < self.prog_buff[1 : self.window_size_rev].mean():
+        #     if self.prog_buff.mean() < 0.97:
+        #         return -2, True
+        #     else:
+        #         return 2, True
         agent_speed = action[0][1]
         agent_steer = action[0][0]
 

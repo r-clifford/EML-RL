@@ -11,6 +11,7 @@ TB_PID=$!
 mkdir -p "$LOG_DIR"
 cp eml_rl/reward.py "$LOG_DIR"
 python rl-baselines3-zoo/train.py --algo "$ALGO" --env f1tenth-v0 \
+  --save-replay-buffer \
   -n 100000000 \
   --eval-freq 25000 \
   --conf-file "$CONFIG" --progress \
@@ -19,6 +20,7 @@ python rl-baselines3-zoo/train.py --algo "$ALGO" --env f1tenth-v0 \
   --save-freq 25000 \
   --eval-episodes 20 \
   --seed 2024 \
-  --uuid
+  --uuid \
+  -i "$4"
 
 kill $TB_PID
