@@ -1,7 +1,7 @@
 # Installation
 1. Clone the repo
    ```
-   git clone https://github.com/r-clifford/EML-RL.git --recursive && cd EML-RL
+   git clone https://github.com/r-clifford/EML-RL.git --recursive -b onnx-wip && cd EML-RL
    ```
 3. Create Python Virtual Environment
    ```
@@ -38,11 +38,6 @@
      pip install -e .
      pip install -r requirements.txt
     ```
-# Train
-https://stable-baselines3.readthedocs.io/en/master/guide/quickstart.html
-```
-python3 eml_rl/train.py <algorithm>
-```
 ## Train with rl-baselines3-zoo
 https://rl-baselines3-zoo.readthedocs.io/en/master/guide/quickstart.html
 ```
