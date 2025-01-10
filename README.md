@@ -37,6 +37,7 @@
      pip install -e stable-baselines3-contrib
      pip install -e .
      pip install -r requirements.txt
+     pip install -e stable-baselines3
     ```
 ## Train with rl-baselines3-zoo
 https://rl-baselines3-zoo.readthedocs.io/en/master/guide/quickstart.html
