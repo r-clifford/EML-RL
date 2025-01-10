@@ -6,19 +6,21 @@ echo "LOG_BASE: $LOG_BASE"
 echo "ALGO: $ALGO"
 LOG_DIR="$LOG_BASE/$ALGO-$(date '+%s')"
 echo "LOG_DIR: $LOG_DIR"
-tensorboard --logdir "$LOG_DIR" &
+# tensorboard --logdir "$LOG_DIR" &
+tensorboard --logdir "$LOG_BASE" &
 TB_PID=$!
 mkdir -p "$LOG_DIR"
-cp eml_rl/reward.py "$LOG_DIR"
-python rl-baselines3-zoo/train.py --algo "$ALGO" --env f1tenth-v0 --n-jobs 1 \
-  -n 100000000 \
-  --eval-freq 25000 \
-  --conf-file "$CONFIG" --progress \
-  -tb "$LOG_DIR" \
-  -f "$LOG_DIR" \
-  --save-freq 25000 \
-  --eval-episodes 20 \
-  --seed 2024 \
-  --uuid
+zip -r eml_rl.zip eml_rl
+cp eml_rl.zip "$LOG_DIR"
+python rl-baselines3-zoo/train.py --algo "$ALGO" --env f1tenth-v0 \
+	-n 2000000 \
+	--eval-freq 10000 \
+	--conf-file "$CONFIG" --progress \
+	-tb "$LOG_DIR" \
+	-f "$LOG_DIR" \
+	--save-freq 10000 \
+	--eval-episodes 16 \
+	--seed 2025 \
+	--uuid
 
 kill $TB_PID

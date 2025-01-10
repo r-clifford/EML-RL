@@ -1,3 +1,4 @@
+import math
 import gymnasium as gym
 import numpy as np
 
@@ -11,17 +12,21 @@ from eml_rl.reward import ProgressReward
 from gymnasium.wrappers import FrameStack
 from stable_baselines3.common.utils import set_random_seed
 
+TIME_COEFF = 1.0
+
 
 def basic_config():
+    vmax = 4.0
+    vmin = 1.0
     conf = {
         "config": {
             "params_randomizer": randomize_sim_params(0.1),
-            "params": {"mu": 0.3},
+            "params": {"mu": 0.3, "v_max": vmax, "v_min": vmin},
             "reset_config": {"type": "shuf_random_static"},
-            "reward_class": ProgressReward(),
+            "reward_class": ProgressReward,
             "map": "Oschersleben",
             "num_agents": 1,
-            "timestep": 0.01,
+            "timestep": 0.01 * TIME_COEFF,
             "model": "st",
             "control_input": ["speed", "steering_angle"],
             "observation_config": {
@@ -39,11 +44,12 @@ def basic_config():
                 ],
             },
         },
-        "frame_stack": 10,
-        "frame_skip": 3,
+        "frame_stack": int(5),
+        # "frame_skip": (int(4 / TIME_COEFF), int(6 / TIME_COEFF)),
+        "frame_skip": math.floor(3 / TIME_COEFF),
         "lidar_beams": 80,
-        "vmax": 8.0,
-        "vmin": 1.0,
+        "vmax": vmax,
+        "vmin": vmin,
     }
     return conf.copy()
 
@@ -61,11 +67,11 @@ def randomize_sim_params(percent: float):
     def f(params):
         params = params.copy()
         for key in params:
-            if key not in ("width", "length"):
-                val = params[key]
-                sigma = percent * val
-                val = val + np.random.normal(0, abs(sigma))
-                params[key] = val
+            # if key not in ("width", "length"):
+            val = params[key]
+            sigma = percent * val
+            val = val + np.random.normal(0, abs(sigma))
+            params[key] = val
         return params
 
     return f
@@ -80,18 +86,21 @@ def make_env(env_id: str, rank: int, seed: int = 0):
     :param rank: index of the subprocess
     """
 
+    # TODO: FrameStack and FrameSkip do not function properly together, we want stacked frames to only be from observations seen by model
     def _init():
         conf = basic_config()
+        conf["config"]["max_laps"] = 3
         env = gym.make(
             "f1tenth_gym:f1tenth-v0",
             config=conf["config"],
             render_mode="rgb_array",
+            # render_mode="human",
         )
 
         env = F1TenthObsTransform(env, beam_count=conf["lidar_beams"])
-        env = FrameStack(env, conf["frame_stack"])
         env = F1TenthActionTransform(env, vmax=conf["vmax"], vmin=conf["vmin"])
-        env = FrameSkip(env, (2, 4))
+        env = FrameSkip(env, conf["frame_skip"])
+        env = FrameStack(env, conf["frame_stack"])
         env.reset(seed=seed + rank)
         return env
 

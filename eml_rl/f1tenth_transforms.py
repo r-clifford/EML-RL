@@ -43,7 +43,7 @@ class F1TenthActionTransform(gym.ActionWrapper):
         self.vmax = vmax
         self.vmin = vmin
         self.steermax = steermax
-        low = np.array([[-1.0, 0.0]]).astype(np.float32)
+        low = np.array([[-1.0, -1.0]]).astype(np.float32)
         high = np.array([[1.0, 1.0]]).astype(np.float32)
         env.action_space = gym.spaces.Box(
             low=low, high=high, shape=(1, 2), dtype=np.float32
@@ -51,6 +51,9 @@ class F1TenthActionTransform(gym.ActionWrapper):
 
     def action(self, action):
         action[0][0] *= self.steermax
+        action[0][1] += 1.0
+        action[0][1] /= 2.0
+        action[0][1] = np.clip(action[0][1], 0, 1)
         action[0][1] *= self.vmax - self.vmin
         action[0][1] += self.vmin
         return action
@@ -92,9 +95,9 @@ class F1TenthTensorboardCallback(BaseCallback):
             progs = env.env.unwrapped.agent_progress
             times = env.env.unwrapped.lap_times
             time = self.laptimes.get(i, np.zeros_like(times))
-            self.laptimes[i] = time + times
+            self.laptimes[i] = times + time
             prog = self.progress.get(i, np.zeros_like(times))
-            self.progress[i] = prog + progs
+            self.progress[i] = progs + prog
 
         self.steps += 1
         return True

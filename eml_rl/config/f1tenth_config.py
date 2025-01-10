@@ -20,19 +20,22 @@ def get_default_hyperparams():
                     }
                 },
                 {
-                    "gymnasium.wrappers.FrameStack": {
-                        "num_stack": train_conf["frame_stack"]
-                    }
-                },
-                {
                     "eml_rl.f1tenth_transforms.FrameSkip": {
                         "skip": train_conf["frame_skip"]
                     }
                 },
+                {
+                    "gymnasium.wrappers.FrameStack": {
+                        "num_stack": train_conf["frame_stack"]
+                    }
+                },
             ],
-            callback=["eml_rl.f1tenth_transforms.F1TenthTensorboardCallback"],
+            callback=[
+                "eml_rl.f1tenth_transforms.F1TenthTensorboardCallback",
+                # "rl_zoo3.callbacks.ParallelTrainCallback",
+            ],
             # normalize=False,
-            # n_envs=1,
+            # n_envs=16,
             n_timesteps=25000.0,
             policy="MlpPolicy",
             policy_kwargs=None,
