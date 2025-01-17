@@ -8,7 +8,7 @@ from eml_rl.f1tenth_transforms import (
     F1TenthActionTransform,
     FrameSkip,
 )
-from eml_rl.reward import ProgressReward
+from eml_rl.reward import ScaledReward
 from gymnasium.wrappers import FrameStack
 from stable_baselines3.common.utils import set_random_seed
 
@@ -23,7 +23,7 @@ def basic_config():
             "params_randomizer": randomize_sim_params(0.1),
             "params": {"mu": 0.3, "v_max": vmax, "v_min": vmin},
             "reset_config": {"type": "shuf_random_static"},
-            "reward_class": ProgressReward,
+            "reward_class": ScaledReward,
             "map": "Oschersleben",
             "num_agents": 1,
             "timestep": 0.01 * TIME_COEFF,
