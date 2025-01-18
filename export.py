@@ -16,7 +16,7 @@ from eml_rl.config.hyperparams.sac_f1tenth import params as sac_params
 
 
 name = sys.argv[1]
-path = sys.argv[2]
+path = None if len(sys.argv) < 3 else sys.argv[2]
 env = make_env("train", 0, 0)()
 if name.lower() in "td3":
     model = TD3
@@ -62,8 +62,10 @@ onnx_model = onnx.load(onnx_path)
 onnx.checker.check_model(onnx_model)
 
 observation = dummy_input.cpu().numpy()
-# providers = ort.get_available_providers()
-providers = ["CPUExecutionProvider"]
+if path:
+    providers = ["CPUExecutionProvider"]
+else:
+    providers = ort.get_available_providers()
 
 
 def test(env: Env, ep):
@@ -79,19 +81,20 @@ def test(env: Env, ep):
         "model.onnx", sess_options=sess_options, providers=providers
     )
     count = 10000
-    count = 1
+    i = 0
     start = time.time()
     observation = env.reset()
     action = ort_sess.run(None, {"input": observation})[0]
-    while True:
+    while path or i < count:
         # seems to sometimes return speed < 0?
         action = ort_sess.run(None, {"input": observation})
         # action = model.predict(observation, deterministic=True)[0]
-        # print(action)
-        # print(base)
-        observation, reward, _, _ = env.step(action)
-        print(reward)
-        env.render("human")
+        if path:
+            print(action)
+            observation, reward, _, _ = env.step(action)
+            env.render("human")
+        i += 1
+
     end = time.time()
     print(f"{count}i")
     print(end - start)
