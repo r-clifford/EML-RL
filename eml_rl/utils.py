@@ -8,22 +8,21 @@ from eml_rl.f1tenth_transforms import (
     F1TenthActionTransform,
     FrameSkip,
 )
-from eml_rl.reward import ScaledReward
+import eml_rl.configuration as UserConfig
 from gymnasium.wrappers import FrameStack
-from stable_baselines3.common.utils import set_random_seed
-
+from stable_baselines3.common.utils import set_random_seed 
 TIME_COEFF = 1.0
 
 
 def basic_config():
-    vmax = 4.0
-    vmin = 1.0
+    vmax = UserConfig.vmax
+    vmin = UserConfig.vmin
     conf = {
         "config": {
             "params_randomizer": randomize_sim_params(0.1),
             "params": {"mu": 0.3, "v_max": vmax, "v_min": vmin},
             "reset_config": {"type": "shuf_random_static"},
-            "reward_class": ScaledReward,
+            "reward_class": UserConfig.reward_function,
             "map": "Oschersleben",
             "num_agents": 1,
             "timestep": 0.01 * TIME_COEFF,
@@ -44,10 +43,10 @@ def basic_config():
                 ],
             },
         },
-        "frame_stack": int(5),
+        "frame_stack": UserConfig.frame_stack,
         # "frame_skip": (int(4 / TIME_COEFF), int(6 / TIME_COEFF)),
         "frame_skip": math.floor(3 / TIME_COEFF),
-        "lidar_beams": 80,
+        "lidar_beams": UserConfig.lidar_beams,
         "vmax": vmax,
         "vmin": vmin,
     }
