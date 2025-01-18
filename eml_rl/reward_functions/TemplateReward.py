@@ -3,16 +3,17 @@ from f1tenth_gym.envs.reward import Reward
 
 
 class TemplateReward(Reward):
-    def __init__(self,params:dict):
+    def __init__(self, params: dict):
         self.params = EnvironmentParams(params)
 
     def reset(self):
-        #reset values on crash/lap finish
+        # reset values on crash/lap finish
         pass
 
     def reward(self, obs, action):
         observation = Observation(obs)
-        #get action for agent 0
+        # get action for agent 0
         action = action[0]
-        
-        return 0,False
+
+        return 0, False
+

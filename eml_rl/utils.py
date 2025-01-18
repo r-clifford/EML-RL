@@ -10,7 +10,8 @@ from eml_rl.f1tenth_transforms import (
 )
 import eml_rl.configuration as UserConfig
 from gymnasium.wrappers import FrameStack
-from stable_baselines3.common.utils import set_random_seed 
+from stable_baselines3.common.utils import set_random_seed
+
 TIME_COEFF = 1.0
 
 
