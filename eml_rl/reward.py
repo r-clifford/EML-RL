@@ -37,7 +37,7 @@ class Observation:
     poses_x: float
     poses_y: float
     scans: np.ndarray[float]
-    def __init__(self,input_obs):
+    def __init__(self,input_obs: dict):
         self.ang_vels_z = input_obs['ang_vels_z'][0]
         self.collisions = input_obs['collisions'][0]
         self.ego_idx = input_obs['ego_idx']

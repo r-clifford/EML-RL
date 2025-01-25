@@ -3,16 +3,19 @@ from f1tenth_gym.envs.reward import Reward
 
 
 class TemplateReward(Reward):
+    max_progress: float
     def __init__(self,params:dict):
         self.params = EnvironmentParams(params)
+        self.best_progress = 0
 
     def reset(self):
         #reset values on crash/lap finish
         pass
 
     def reward(self, obs, action):
-        observation = Observation(obs)
-        #get action for agent 0
-        action = action[0]
-        
-        return 0,False
+        #calculate reward based on progress through the track
+        #use observation variable (observation) to get the information
+        #see Observation class in reward.py for more detailed information
+        obs = Observation(obs)
+        progress = obs.lap_progress
+        return progress, False
