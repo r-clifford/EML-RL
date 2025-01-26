@@ -1,5 +1,6 @@
 from eml_rl.reward_functions.ProgressReward import ProgressReward
 from eml_rl.reward_functions.ScaledReward import ScaledReward
+from eml_rl.reward_functions.CenterReward import CenterReward
 
 
 # Max and min velocity in m/s
@@ -14,7 +15,7 @@ vmin = 1.0
 # as the lidar scans a t = 0 -> t = `frame_stack` are concatenated
 # Keep in mind that a scan is retrieved every ~30 ms
 # Recommended 5-40
-frame_stack = 5
+frame_stack = 40
 
 # Number of lidar beams to sample
 # Unmodified scan is 1080 beams
@@ -27,5 +28,4 @@ lidar_beams = 80
 # Make sure to import requested function
 # Example:
 # from eml_rl.reward_functions.ProgressReward import ProgressReward
-reward_function = ProgressReward
-
+reward_function = CenterReward

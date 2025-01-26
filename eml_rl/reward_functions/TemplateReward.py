@@ -6,9 +6,9 @@ class TemplateReward(Reward):
     def __init__(self, params: dict):
         self.params = EnvironmentParams(params)
 
-    def reset(self):
+    def reset(self, params: dict):
         # reset values on crash/lap finish
-        pass
+        self.params = EnvironmentParams(params)
 
     def reward(self, obs, action):
         observation = Observation(obs)
@@ -16,4 +16,3 @@ class TemplateReward(Reward):
         action = action[0]
 
         return 0, False
-

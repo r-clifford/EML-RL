@@ -32,7 +32,8 @@ class ProgressReward(Reward):
         self.max_speed = params["params"]["v_max"]
         self.min_speed = params["params"]["v_min"]
 
-    def reset(self):
+    def reset(self, params: dict):
+        # reset values on crash/lap finish
         self.prog_buff = np.zeros(self.buffer_size)
         self.steer_buff = np.zeros(2)
 
@@ -145,3 +146,4 @@ class ProgressReward(Reward):
         else:
             return 0
         # return self.speed_weight * (1 - speed / self.params["params"]["v_max"])
+

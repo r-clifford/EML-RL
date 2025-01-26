@@ -41,7 +41,6 @@ policy_kwargs = dict(
     net_arch=[3200, 2400, 1200],
     use_expln=False,
     use_sde=use_sde,
-    train_freq=2,
     # log_std_init=-0.3044998886067871,
     # n_quantiles=46,
 )
@@ -54,7 +53,7 @@ params = dict(
     # batch_size=1024,
     # buffer_size=10000,
     # learning_starts=0,
-    # train_freq=16,
+    train_freq=2,
     # top_quantiles_to_drop_per_net=0,
     # tau=0.01,
     gradient_steps=-1,
