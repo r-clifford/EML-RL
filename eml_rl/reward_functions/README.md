@@ -98,18 +98,22 @@ mkdir logs
 ```
 
 ## Evaluate Your Trained Model
-After training for awhile (times may vary based on the hardware you are running on), you will want to see how your model is doing. Kill the training session with Ctrl-c. You should get a message like the one below. Copy this message (we will use it in a second)
+After training for awhile (times may vary based on the hardware you are running on), you will want to see how your model is doing. Kill the training session with Ctrl-c. You should get a message like the one below. Run this command (we will use it in a second)
+```shell
+ls -rt logs/ | echo logs/"$(tail -n 1)" | xargs -I{} find {} -name "best_model.zip"
 ```
-Saving to logs/td3-1738348143/td3/f1tenth-v0_1_eb2c0f96-bbf0-4d46-a0e4-03eb760dc3fd
+The output should be something similar to:
+```shell
+logs/td3-1738361911/td3/f1tenth-v0_1_ea43e92e-c504-42f9-b9fb-0e29914f81a0/best_model.zip
 ```
-It is useful (and fun) to watch your model drive. Some commands are listed below to begin an evaluation session on the model you just trained:
+Copy the output of this command and insert it in the correct spot for the best model location. It is useful (and fun) to watch your model drive. Some commands are listed below to begin an evaluation session on the model you just trained:
 ```shell
 # Assuming we trained using td3, change this if you used something different
 # python3 eml_rl/eval.py <algorithm> <path to model zip>
 #example command shown below, find your path to a file best_model.zip under your training session in logs
 #example command, do not attempt to run
 #find your own best_model.zip in your training logs
-#python3 eml_rl/eval.py td3 ./logs/td3-1738348143/td3/f1tenth-v0_1_eb2c0f96-bbf0-4d46-a0e4-03eb760dc3fd/best_model.zip
+#python3 eml_rl/eval.py td3 ./<your command output here>
 ```
 
 
