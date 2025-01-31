@@ -8,7 +8,7 @@ class TemplateReward(Reward):
         self.params = EnvironmentParams(params)
         self.best_progress = 0
 
-    def reset(self):
+    def reset(self,params:dict):
         #reset values on crash/lap finish
         pass
 
