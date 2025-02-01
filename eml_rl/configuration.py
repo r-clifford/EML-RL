@@ -18,6 +18,7 @@ vmin = 1.0
 # Keep in mind that a scan is retrieved every ~30 ms
 # Recommended 5-40
 frame_stack = 40
+frame_skip = 3.0
 
 # Number of lidar beams to sample
 # Unmodified scan is 1080 beams

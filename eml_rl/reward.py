@@ -102,7 +102,7 @@ class RewardUtils:
         Args:
             obs:
             params:
-            line_type: RewardUtils.LineType.{Centerline, Raceline}
+            line_type: LineType.{Centerline, Raceline}
 
         Returns:
             (index, s, x, y, yaw, kappa, v, a)
@@ -117,7 +117,7 @@ class RewardUtils:
         yaw = 0
         k = 0
         ax = 0
-        if line_type == "race":
+        if line_type == LineType.Raceline:
             s = line.ss[index]
             yaw = line.yaws[index]
             k = line.ks[index]

@@ -46,7 +46,7 @@ def basic_config():
         },
         "frame_stack": UserConfig.frame_stack,
         # "frame_skip": (int(4 / TIME_COEFF), int(6 / TIME_COEFF)),
-        "frame_skip": math.floor(3 / TIME_COEFF),
+        "frame_skip": math.floor(UserConfig.frame_skip / TIME_COEFF),
         "lidar_beams": UserConfig.lidar_beams,
         "vmax": vmax,
         "vmin": vmin,
