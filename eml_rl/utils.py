@@ -22,7 +22,7 @@ def basic_config():
         "config": {
             "params_randomizer": randomize_sim_params(0.1),
             "params": {"mu": 0.3, "v_max": vmax, "v_min": vmin},
-            "reset_config": {"type": "shuf_random_static"},
+            "reset_config": {"type": UserConfig.reset_config},
             "reward_class": UserConfig.reward_function,
             "map": "Oschersleben",
             "num_agents": 1,

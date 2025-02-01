@@ -1,10 +1,11 @@
 from eml_rl.utils import basic_config
+import eml_rl.configuration as UserConfig
 
 
 def get_default_hyperparams():
     train_conf = basic_config().copy()
     eval_conf = basic_config().copy()
-    eval_conf["reset_config"] = {"type": "cl_grid_static"}
+    eval_conf["reset_config"] = {"type": UserConfig.reset_config}
     return {
         "f1tenth-v0": dict(
             env_wrapper=[

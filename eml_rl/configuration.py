@@ -1,6 +1,8 @@
 from eml_rl.reward_functions.ProgressReward import ProgressReward
 from eml_rl.reward_functions.ScaledReward import ScaledReward
 from eml_rl.reward_functions.CenterReward import CenterReward
+from eml_rl.reward_functions.WaypointReward import WaypointReward
+from eml_rl.reward_functions.PurePursuitReward import PurePursuitReward
 
 
 # Max and min velocity in m/s
@@ -29,3 +31,8 @@ lidar_beams = 80
 # Example:
 # from eml_rl.reward_functions.ProgressReward import ProgressReward
 reward_function = CenterReward
+
+# cl_grid_static: centerline, fixed start point
+# cl_random_static: centerline, random
+# shuf_random_static: raceline
+reset_config = "cl_random_static"

@@ -16,8 +16,7 @@ class CenterReward(Reward):
     def reward(self, obs, action):
         obs = Observation(obs)
         # get action for agent 0
-        steer, speed = (action[0][0], action[0][1])
-
+        steer, _ = (action[0][0], action[0][1])
         base_reward = 1.0
 
         center_dist = RewardUtils.center_distance(obs, self.params)

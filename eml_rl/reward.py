@@ -1,10 +1,11 @@
+from f1tenth_gym.envs.track.raceline import Raceline
 import numpy as np
-from f1tenth_planning.control.pure_pursuit.pure_pursuit import PurePursuitPlanner
 from dataclasses import dataclass
 
 from f1tenth_gym.envs.track import Track
 import f1tenth_gym.envs.track.utils as track_utils
 import math
+from enum import Enum, auto
 
 
 @dataclass
@@ -49,6 +50,8 @@ class EnvironmentParams:
     def __init__(self, params: dict):
         self.v_max = params["params"]["v_max"]
         self.v_min = params["params"]["v_min"]
+        self.s_min = params["params"]["s_min"]
+        self.s_max = params["params"]["s_max"]
         self.map = params["map"]
         self.num_agents = params["num_agents"]
         self.model = params["model"]
@@ -56,16 +59,70 @@ class EnvironmentParams:
         self.track = params["track"]
 
 
+class LineType(Enum):
+    Raceline = auto()
+    Centerline = auto()
+
+
 class RewardUtils:
     @staticmethod
-    def center_distance(obs: Observation, params: EnvironmentParams) -> float:
+    def nearest_waypoint_index(obs: Observation, line: Raceline) -> int:
         ego_x, ego_y = obs.poses_x, obs.poses_y
-        centerline = params.track.centerline
-        pairs = np.dstack((centerline.xs, centerline.ys))[0]
+        pairs = np.dstack((line.xs, line.ys))[0]
         _, _, _, index = track_utils.nearest_point_on_trajectory(
             np.array([ego_x, ego_y]), pairs
         )
-        center_x, center_y = (centerline.xs[index], centerline.ys[index])
+        return index
 
+    @staticmethod
+    def _line_distance(obs: Observation, line: Raceline) -> float:
+        ego_x, ego_y = obs.poses_x, obs.poses_y
+        index = RewardUtils.nearest_waypoint_index(obs, line)
+        center_x, center_y = (line.xs[index], line.ys[index])
         dist = math.sqrt((ego_x - center_x) ** 2 + (ego_y - center_y) ** 2)
         return dist
+
+    @staticmethod
+    def center_distance(obs: Observation, params: EnvironmentParams) -> float:
+        return RewardUtils._line_distance(obs, params.track.centerline)
+
+    @staticmethod
+    def raceline_distance(obs: Observation, params: EnvironmentParams) -> float:
+        return RewardUtils._line_distance(obs, params.track.raceline)
+
+    @staticmethod
+    def nearest_waypoint(
+        obs: Observation,
+        params: EnvironmentParams,
+        line_type: LineType,
+    ) -> tuple[int, float, float, float, float, float, float, float]:
+        """Get waypoint closest to current position
+        Note: centerline will return s, yaw, k, ax = 0
+
+        Args:
+            obs:
+            params:
+            line_type: RewardUtils.LineType.{Centerline, Raceline}
+
+        Returns:
+            (index, s, x, y, yaw, kappa, v, a)
+        """
+        line = (
+            params.track.raceline
+            if line_type == LineType.Raceline
+            else params.track.centerline
+        )
+        index = RewardUtils.nearest_waypoint_index(obs, line)
+        s = 0
+        yaw = 0
+        k = 0
+        ax = 0
+        if line_type == "race":
+            s = line.ss[index]
+            yaw = line.yaws[index]
+            k = line.ks[index]
+            ax = line.axs[index]
+        x = line.xs[index]
+        y = line.ys[index]
+        vx = line.vxs[index]
+        return (index, s, x, y, yaw, k, vx, ax)
