@@ -5,6 +5,7 @@ from f1tenth_gym.envs.reward import Reward
 class TemplateReward(Reward):
     def __init__(self, params: dict):
         self.params = EnvironmentParams(params)
+        self.best_progress = 0
 
     def reset(self, params: dict):
         # reset values on crash/lap finish

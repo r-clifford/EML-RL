@@ -49,6 +49,11 @@ https://rl-baselines3-zoo.readthedocs.io/en/master/guide/quickstart.html
 - `config_file`: Config file with environment parameters and model hyperparams
    - See `eml_rl/config/hyperparams/<algo>_f1tenth.py`
 # Evaluate
+First time setup for display forwarding
+```bash
+xhost +local:
+```
+If this fails, run the `sudo apt install` displayed in the error.
 ```
 python3 eml_rl/eval.py <algorithm> <path to model zip>
 ```
