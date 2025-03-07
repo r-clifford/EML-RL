@@ -1,0 +1,10 @@
+{
+    "vmax": 4.0,
+    "vmin": 1.0,
+    "frame_stack": 40,
+    "frame_skip": 3.0,
+    "lidar_beams": 80,
+    "map": "Shanghai",
+    "reward_function": "CenterReward",
+    "reset_config": "cl_random_static"
+}

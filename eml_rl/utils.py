@@ -24,7 +24,7 @@ def basic_config():
             "params": {"mu": 0.3, "v_max": vmax, "v_min": vmin},
             "reset_config": {"type": UserConfig.reset_config},
             "reward_class": UserConfig.reward_function,
-            "map": "Oschersleben",
+            "map": UserConfig.map,
             "num_agents": 1,
             "timestep": 0.01 * TIME_COEFF,
             "model": "st",
