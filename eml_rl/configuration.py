@@ -42,7 +42,7 @@ map = config_file["map"]
 # Make sure to import requested function
 # Example:
 # from eml_rl.reward_functions.ProgressReward import ProgressReward
-module = importlib.import_module(f"eml_rl.reward_functions.{config_file["reward_function"]}")
+module = importlib.import_module(f'eml_rl.reward_functions.{config_file["reward_function"]}')
 reward_function = getattr(module, config_file['reward_function'])
 
 # cl_grid_static: centerline, fixed start point
